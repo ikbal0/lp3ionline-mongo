@@ -1,0 +1,33 @@
+.sideNav {
+    height: 100%;
+}
+
+@media only screen and (min-width: 770px) {
+    .grid2 {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 770px) {
+    .grid1 {
+        display: none;
+    }
+    
+    .content{
+        background-image: url('/bgIndex.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        color: aliceblue;
+    }
+
+    .loginDiv{
+        border-radius: 5px;
+        background-color: rgba(20, 17, 17, 0.548);
+    }
+
+    .bd{
+        background-color: #151642;
+    }
+}

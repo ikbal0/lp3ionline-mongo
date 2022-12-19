@@ -1,0 +1,39 @@
+.grid1{
+    background-image: url('/bgd.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.grid2 {
+    padding-top: 30px;
+    /* background-color: rgba(20, 17, 17, 0.548); */
+    background-color: #151642;
+    color: aliceblue;
+}
+
+@media only screen and (max-width: 770px) {
+    .grid1 {
+        display: none;
+    }
+
+    .grid2 {
+        width: 100%;
+    }
+    
+    .content{
+        background-image: url('/bgIndex.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        color: aliceblue;
+    }
+
+    .loginDiv{
+        border-radius: 5px;
+        background-color: rgba(20, 17, 17, 0.548);
+    }
+
+    .bd{
+        background-color: #151642;
+    }
+}
