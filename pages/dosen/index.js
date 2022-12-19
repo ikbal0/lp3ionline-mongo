@@ -345,20 +345,34 @@ DashboardPage.getLayout = function getLayout(page) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  // const session = await getT
-
-  if(!session){
+  if (session){
+    if(session.level == '1'){
       return {
-          redirect: {
-              permanent: false,
-              destination: "/login"
-          }
+        redirect: {
+          permanent: false,
+          destination: "/peserta"
+        }
       }
+    } else if(session.level == '3'){
+      return {
+        redirect: {
+          permanent: false,
+          destination: "/dashboard-admin"
+        }
+      }
+    }
+  } else {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login"
+      }
+    }
   }
 
   return {
-      props: {
-          session,
-      }
+    props: {
+      session,
+    }
   }
 }

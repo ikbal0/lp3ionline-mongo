@@ -110,6 +110,10 @@ export default function Login({csrfToken}) {
     )
 }
 
+Login.getLayout = function getLayout(page) {
+    return page
+}
+
 export async function getServerSideProps(context) {
     const session = await getSession(context)
 

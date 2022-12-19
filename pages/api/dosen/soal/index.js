@@ -7,31 +7,15 @@ export default async function handler(req, res){
     if(session.level == '2'){
         const client = await clientPromise
         const testDb = await client.db("test-Db")
-        const userTbl = await testDb.collection("userTbl")
+        const tblDosen = await testDb.collection("tblDosen")
         if(req.method === "GET"){
-            const data = await userTbl.aggregate([
-                {   
-                    $match : { _id : new ObjectId(session.id) }
-                },
-                {
-                    $lookup: {
-                        from: "tblDosen",
-                        localField: "_id",
-                        foreignField: "userId",
-                        as: "a"
-                    }
-                },
-                {
-                    $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$a", 0 ] }, "$$ROOT" ] } }
-                },
-                { $project: { a: 0, userId: 0 } }
-            ]).toArray()
+            const data = await tblDosen.findOne({ userId : new ObjectId(session.id) })
 
             
             const soalTable = await testDb.collection("soalTbl")
             const dataSoal = await soalTable.aggregate([
                 {   
-                    $match : { idDosen : new ObjectId(data[0]._id) }
+                    $match : { idDosen : new ObjectId(data._id) }
                 },
                 {
                     $lookup: {

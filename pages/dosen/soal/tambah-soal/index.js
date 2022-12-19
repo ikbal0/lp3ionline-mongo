@@ -4,6 +4,7 @@ import { Check2All, Clipboard2Minus, FiletypePdf, JustifyRight } from "react-boo
 import { useState } from "react";
 import style from "../../../../styles/Soal.module.css"
 import SideNav from "../../../../lib/dosen/SideNav";
+import { getSession } from "next-auth/react"
 
 export default function TambahSoal(){
     const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
@@ -13,12 +14,12 @@ export default function TambahSoal(){
 
     function MyCarousel() {
         return (
-            <div className="p-5 text-white" style={{backgroundColor:'#00426D'}}>
-                <h1>Tambah Soal</h1>
+            <div className="p-5 text-light" style={{backgroundColor:'#00426D'}}>
+                <h1 className="text-light">Tambah Soal</h1>
                 <p>Masukan data soal</p>
                 <div className="row">
                     <div className="col-sm-12">
-                    <h4>
+                    <h4 className="text-light">
                         <Link href="/dosen/soal">
                             <a className="text-warning"
                             style={{
@@ -161,4 +162,42 @@ export default function TambahSoal(){
             </div>
         </>
     )
+}
+
+TambahSoal.getLayout = function getLayout(page) {
+    return page
+}
+
+export async function getServerSideProps(context) {
+    const session = await getSession(context);
+    if (session){
+      if(session.level == '1'){
+        return {
+          redirect: {
+            permanent: false,
+            destination: "/peserta"
+          }
+        }
+      } else if(session.level == '3'){
+        return {
+          redirect: {
+            permanent: false,
+            destination: "/dashboard-admin"
+          }
+        }
+      }
+    } else {
+      return {
+        redirect: {
+          permanent: false,
+          destination: "/login"
+        }
+      }
+    }
+  
+    return {
+      props: {
+        session,
+      }
+    }
 }

@@ -13,7 +13,7 @@ export default function uploadSoal({kelas}){
     function MyCarousel() {
         return (
             <div className="p-5 text-white" style={{backgroundColor:'#00426D'}}>
-                <h1>Upload Soal</h1>
+                <h1 className="text-light">Upload Soal</h1>
                 <p>Masukan data soal</p>
                 <h4>
                     <Link href="/dosen/soal">
@@ -32,7 +32,7 @@ export default function uploadSoal({kelas}){
                     >Tambah soal</a>
                     </Link>
                     {' > '}
-                    Upload
+                    <text className="text-light">Upload</text>
                 </h4>
             </div>
         )
@@ -62,7 +62,7 @@ export default function uploadSoal({kelas}){
         }, [])
 
         async function fetchDosen() {
-            const response = await fetch('/api/dosen/profilePerUserId/auth')
+            const response = await fetch('/api/dosen/profilePerDosenId/auth')
             if (response.status == 200) {
                 const dataMatakuliah = await response.json()
                 console.log(dataMatakuliah.data.matakuliahId)
@@ -292,6 +292,10 @@ export default function uploadSoal({kelas}){
 
         </>
     )
+}
+
+uploadSoal.getLayout = function getLayout(page) {
+    return page
 }
 
 export async function getServerSideProps(context) {

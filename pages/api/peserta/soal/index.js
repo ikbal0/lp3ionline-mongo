@@ -1,8 +1,8 @@
 import nextConnect from 'next-connect';
 import multer from 'multer';
 import {getSession} from 'next-auth/react';
-import clientPromise from '../../../lib/mongodb';
 import { ObjectId } from 'mongodb';
+import clientPromise from '../../../../lib/mongodb';
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -59,18 +59,82 @@ apiRoute.post( async (req, res) => {
 });
 
 apiRoute.get(async (req, res) => {
+  const session = await getSession({req})
   const client = await clientPromise
   const testDb = await client.db("test-Db")
   const soalTable = await testDb.collection("soalTbl")
-  const data = await soalTable.find({}).toArray()
-  if(!data) {
+  const userTbl = await testDb.collection("userTbl")
+  
+  const data = await userTbl.aggregate([
+    {   
+      $match : { 
+        _id : new ObjectId(session.id) 
+      }
+    },
+    {
+      $lookup: {
+        from: "tblMahasiswa",
+        localField: "_id",
+        foreignField: "userId",
+        as: "a"
+      }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$a", 0 ] }, "$$ROOT" ] } }
+    },
+    { $project: { a: 0, userId: 0 } }
+  ]).toArray()
+
+  const dataSoal = await soalTable.aggregate([
+    {   
+      $match : { 
+        kelasId : new ObjectId(data[0].idKelas)
+      }
+    },
+    {
+      $lookup: {
+        from: "tblKelas",
+        localField: "kelasId",
+        foreignField: "_id",
+        as: "a"
+      }
+    },
+    {
+      $lookup: {
+        from: "tblDosen",
+        localField: "idDosen",
+        foreignField: "_id",
+        as: "b"
+      }
+    },
+    {
+      $lookup: {
+        from: "tabelMatakuliah",
+        localField: "idMatakuliah",
+        foreignField: "_id",
+        as: "c"
+      }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$a", 0 ] }, "$$ROOT" ] } }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$b", 0 ] }, "$$ROOT" ] } }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$c", 0 ] }, "$$ROOT" ] } }
+    },
+    { $project: { a: 0, b: 0, c: 0, userId: 0 } }
+  ]).toArray()
+
+  if(!dataSoal) {
     res.status(404).send({ 
-      message: 'data not found'  
+    message: 'data not found'  
     });
   } else {
     res.status(200).send({ 
-      message: 'success',
-      data 
+    message: 'success',
+    data: dataSoal
     });
   }
 });

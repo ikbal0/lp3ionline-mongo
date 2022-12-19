@@ -61,3 +61,7 @@ export default function JawabanPage() {
         </div>
     </div>
 }
+
+JawabanPage.getLayout = function getLayout(page) {
+    return page
+}

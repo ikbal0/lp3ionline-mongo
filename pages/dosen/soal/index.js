@@ -400,7 +400,10 @@ export default function SoalPage({kelas}){
                 <td>{f.kelas}</td>
                 <td>{f.batasWaktu} Menit</td>
                 <td>
-                  <a onClick={() =>{
+                  <a style={{
+                    'color': 'blue',
+                    'textDecoration': 'underline'
+                  }} onClick={() =>{
                     handleClick(f._id)
                     setShow(!show)
                     }}>Go</a>
@@ -462,6 +465,10 @@ export default function SoalPage({kelas}){
       </div>
     </>
   )
+}
+
+SoalPage.getLayout = function getLayout(page) {
+  return page
 }
 
 export async function getServerSideProps(context) {
