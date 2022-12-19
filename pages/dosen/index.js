@@ -91,7 +91,12 @@ export default function DashboardPage(){
 
                   <div class="col">
                     <div class="card bg-dark text-white">
-                      <Image src="/header-about.png" width="2694" height="708" class="card-img" alt="..."/>
+                      <Image 
+                      src="/header-about.png" 
+                      width="2694" 
+                      height="708" 
+                      class="card-img" 
+                      alt="..."/>
                       <div class="card-img-overlay">
                         <h5 class="card-title">Nama Dosen</h5>
                         <p class="card-text col-md-7">Anda adalah orang yang luar biasa. Keberadaan Anda di sini selalu memberikan kesempatan untuk untuk belajar. Kami menyambut Anda dengan hangat untuk berbagi dengan kami.</p>
@@ -332,6 +337,10 @@ export default function DashboardPage(){
       </div>
     </>
   )
+}
+
+DashboardPage.getLayout = function getLayout(page) {
+  return page
 }
 
 export async function getServerSideProps(context) {
