@@ -23,7 +23,7 @@ const apiRoute = nextConnect({
 
 const auth = async (req, res, next) => {
   const session = await getSession({req})
-  if(session.level != '2'){
+  if(!session){
     res.status(401).send({message: 'no access'})
   }
   next()
@@ -31,6 +31,68 @@ const auth = async (req, res, next) => {
 
 apiRoute.use(upload.array('file'));
 apiRoute.use(auth)
+
+apiRoute.get( async (req, res) => {
+  const { soalId } = req.query
+  const client = await clientPromise
+  const testDb = await client.db("test-Db")
+  const soalTable = await testDb.collection("soalTbl")
+
+  const dataSoal = await soalTable.aggregate([
+    {   
+      $match : { 
+        _id : new ObjectId(soalId)
+      }
+    },
+    {
+      $lookup: {
+        from: "tblKelas",
+        localField: "kelasId",
+        foreignField: "_id",
+        as: "a"
+      }
+    },
+    {
+      $lookup: {
+        from: "tblDosen",
+        localField: "idDosen",
+        foreignField: "_id",
+        as: "b"
+      }
+    },
+    {
+      $lookup: {
+        from: "tabelMatakuliah",
+        localField: "idMatakuliah",
+        foreignField: "_id",
+        as: "c"
+      }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$a", 0 ] }, "$$ROOT" ] } }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$b", 0 ] }, "$$ROOT" ] } }
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$c", 0 ] }, "$$ROOT" ] } }
+    },
+    { $project: { a: 0, b: 0, c: 0, userId: 0 } }
+  ]).toArray()
+
+  const a = dataSoal[0]
+
+  if(dataSoal){
+      res.status(200).send({ 
+      message: 'success',
+      data: a
+      });
+  } else {
+      res.status(402).send({ 
+      message: 'fail'
+      });
+  }
+});
 
 apiRoute.put( async (req, res) => {
     const { soalId } = req.query

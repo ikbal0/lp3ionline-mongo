@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 
 function TopNav(params) {
     return(
-      <div className="row" style={{backgroundColor:'#00426D', padding:20, marginRight: '8px'}}>
-        <h3 className='text-light'>Up coming exam</h3>
+      <div>
+        <h3 className='text-light'style={{backgroundColor:'#00426D', padding:50, marginRight: '8px'}}>Up coming exam</h3>
       </div>
     )
 }
@@ -106,11 +106,12 @@ function Table () {
                             <td>{f.matakuliah}</td>
                             <td>{f.tanggal}</td>
                             <td>
-                                <button 
+                                <Link
+                                href={`peserta/exam/${f._id}`}>
+                                <a 
                                 className='btn btn-success'
-                                onClick={() => {
-                                    setShow(!show)
-                                }}>Go</button>
+                                >Go</a>
+                                </Link>
                             </td>
                             <td>{f.batasWaktu}</td>
                         </tr>
@@ -127,13 +128,15 @@ export default function Peserta() {
     return (<>
         <div className='overflow-hidden'>
             <div className='row'>
-                <div className='col-lg-2 ms-2 mt-2'>
+                <div className='col-lg-2 ms-2 pt-2 bg-dark'>
                     <PesertaSideNav/>
                 </div>
                 <div className='col'>
                     <TopNav/>
+                    <div className='container'>
                     <h3>Peserta</h3>
                     <Table/>
+                    </div>
                 </div>
             </div>
         </div>
