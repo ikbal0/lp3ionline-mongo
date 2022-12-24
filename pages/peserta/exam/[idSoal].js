@@ -1,3 +1,4 @@
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -5,6 +6,7 @@ import { useEffect, useState } from "react";
 
 export default function ExamPage(params) {
     const [soal, setSoal] = useState(null)
+    const [fileUpload, setFile] = useState(null)
     const [isLoading, setLoading] = useState(false)
     const [show, setShow] = useState(true)
     const router = useRouter()
@@ -103,6 +105,30 @@ export default function ExamPage(params) {
         }
     },[])
 
+    async function onSubmit(event) {
+        event.preventDefault()
+        const formData = new FormData()
+        const fileName = Date.now().toString() + fileUpload.name
+        formData.append("file", fileUpload, fileName)
+        formData.append("idSoal", idSoal)
+        formData.append("fileName", fileName)
+
+        const endpoint = '/api/jawaban'
+
+        const options = {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        }
+
+        const response = await axios.post(endpoint, formData, options)
+
+        alert(response.data.message)
+        if(response.data.message == 'success') {
+            router.push('/peserta/')
+        }
+    }
+
     if(!isLoading) return <h3>Loading... Wait a bit</h3>
     if(!soal){ return <h3>Loading... Wait a bit, get data soal</h3>}
 
@@ -128,6 +154,7 @@ export default function ExamPage(params) {
                 style={{
                     'cursor': 'pointer'
                 }}>
+                    <form onSubmit={onSubmit}>
                     <div className="h4 pb-2 mb-4 text-premier border-bottom border-premier">
                     {soal.topik}
                     </div>
@@ -186,8 +213,9 @@ export default function ExamPage(params) {
                         }}
                         >Drag your files here or click in this area.</p>
                     </div>
+                    <button className="btn btn-success mt-5" width="100%">Upload Result</button>
+                    </form>
                 </div>
-                <button className="btn btn-success" width="100%">Done</button>
             </div>
         </div>
         </div>

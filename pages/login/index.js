@@ -99,7 +99,7 @@ export default function Login({csrfToken}) {
 
                 <div className={`col-lg-3 col-md-5 ${style.grid2}`} style={{'height': '100vh', 'paddingRight': '20px', 'paddingLeft': '20px'}}>
                     <div className="row text-start align-content-center h-100" >
-                        <h2>Welcome Back</h2>
+                        <h2 className='text-light'>Welcome Back</h2>
                         <small className="font-weight-bold">Start your <a className="text-danger" style={{'textDecoration': 'none', 'cursor': 'pointer'}}>career</a> here!</small>
                         <hr className="my-4"/>
                         <FormLogin/>

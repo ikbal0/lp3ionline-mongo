@@ -134,6 +134,7 @@ apiRoute.get(async (req, res) => {
   } else {
     res.status(200).send({ 
     message: 'success',
+    session,
     data: dataSoal
     });
   }

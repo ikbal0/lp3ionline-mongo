@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import 'bootstrap/dist/css/bootstrap.css'
 import { SessionProvider } from "next-auth/react"
 import { LayoutProvider } from '../layout/context/layoutcontext';
-import Layout from '../layout/layout';
+// import Layout from '../layout/layout';
 import 'primereact/resources/primereact.css';
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
@@ -19,9 +19,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     return (
       <SessionProvider session={session}>
         <LayoutProvider>
-          <Layout>
+          {/* <Layout> */}
             <Component {...pageProps} />
-          </Layout>
+          {/* </Layout> */}
         </LayoutProvider>
       </SessionProvider>
     );
