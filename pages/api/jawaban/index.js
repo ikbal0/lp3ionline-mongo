@@ -22,26 +22,26 @@ class Jawaban {
         return data
     }
     async setData(namaFileJawaban, soalId, idUser){
-        const testDb = await dataSource.getData()
-        const tblMahasiswa = await testDb.collection("tblMahasiswa") 
-        const idMahasiswa = await tblMahasiswa.findOne({userId: new ObjectId(idUser)})
-        const tblJawaban = await testDb.collection("tblJawaban")
-        // console.log({
-        //     namaFileJawaban,
-        //     soalId,
-        //     idMahasiswa: idMahasiswa._id
-        // })
-        const data = await tblJawaban.insertOne({
-            namaFileJawaban,
-            soalId:  new ObjectId(soalId),
-            idMahasiswa: idMahasiswa._id
-        })
-        if(data.acknowledged){
-            console.log({message: 'success', data})
-          } else {
-            console.log('fail')
-        }
-        // return data
+      const testDb = await dataSource.getData()
+      const tblMahasiswa = await testDb.collection("tblMahasiswa") 
+      const idMahasiswa = await tblMahasiswa.findOne({userId: new ObjectId(idUser)})
+      const tblJawaban = await testDb.collection("tblJawaban")
+      // console.log({
+      //     namaFileJawaban,
+      //     soalId,
+      //     idMahasiswa: idMahasiswa._id
+      // })
+      const data = await tblJawaban.insertOne({
+        namaFileJawaban,
+        soalId:  new ObjectId(soalId),
+        idMahasiswa: idMahasiswa._id
+      })
+      if(data.acknowledged){
+          console.log({message: `'success' ${data.insertedId}`, data})
+        } else {
+          console.log('fail')
+      }
+      // return data
     }
 }
 
@@ -76,10 +76,32 @@ apiRoute.use(auth)
 
 apiRoute.post( async (req, res) => {
     const session = await getSession({req})
-    jawaban.setData(req.body.fileName, req.body.idSoal, session.id)
+
+    const testDb = await dataSource.getData()
+    const tblMahasiswa = await testDb.collection("tblMahasiswa") 
+    const idMahasiswa = await tblMahasiswa.findOne({userId: new ObjectId(session.id)})
+    const tblJawaban = await testDb.collection("tblJawaban")
+    // console.log({
+    //     namaFileJawaban,
+    //     soalId,
+    //     idMahasiswa: idMahasiswa._id
+    // })
+    const data = await tblJawaban.insertOne({
+      namaFileJawaban: req.body.fileName,
+      soalId:  new ObjectId(req.body.idSoal),
+      idMahasiswa: idMahasiswa._id,
+    })
+    if(data.acknowledged){
+        console.log({message: `'success' ${data.insertedId}`, data})
+      } else {
+        console.log('fail')
+    }
+    // jawaban.setData(req.body.fileName, req.body.idSoal, session.id)
+
     try {
         res.status(202).send({
-            message: 'success'
+          message: 'success',
+          idJawaban: data.insertedId
         })
     } catch (error) {
         res.status(404).send({

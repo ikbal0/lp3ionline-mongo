@@ -6,11 +6,128 @@ import { useEffect, useState } from "react";
 
 export default function ExamPage(params) {
     const [soal, setSoal] = useState(null)
+    const [cam, setCam] = useState()
+    const [screen, setScreen] = useState()
     const [fileUpload, setFile] = useState(null)
     const [isLoading, setLoading] = useState(false)
     const [show, setShow] = useState(true)
     const router = useRouter()
     const { idSoal } = router.query
+
+    const displayMediaOptions = {
+        video: true,
+        audio: true
+    };
+      
+    async function startCapture() {
+        if (document.getElementById("videoView").srcObject != null) return alert('already recorded')
+        if (document.getElementById("videoView2").srcObject != null) return alert('0')
+        try {
+            const dataCam = []
+            const data = []
+
+            const myElement = document.getElementById("videoView");
+            const myElement2 = document.getElementById("videoView2");
+            try {
+                const stream = myElement.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+                const stream2 = myElement2.srcObject = await navigator.mediaDevices.getUserMedia(displayMediaOptions)
+                
+                const mediaRecorder = new MediaRecorder(stream)
+                const mediaRecorder2 = new MediaRecorder(stream2)
+
+                mediaRecorder.ondataavailable = (e) => {
+                    data.push(e.data)
+                }
+
+                mediaRecorder2.ondataavailable = (e) => {
+                    dataCam.push(e.data)
+                }
+
+                mediaRecorder.start()
+                mediaRecorder2.start()
+
+                mediaRecorder.onstop = async (e) => {
+                    // const v = await onSubmit()
+                    // console.log(v)
+                    const file = new Blob(data, {
+                        type: 'video/mp4'
+                    })
+
+                    document.getElementById("videoView").src = URL.createObjectURL(
+                    file
+                    )
+
+                    const fileName = Date.now().toString() + "vid.mp4"
+
+                    const formData = new FormData()
+                    
+                    formData.append("file", file, fileName)
+                    formData.append("fileName", fileName)
+                    setScreen(fileName)
+
+                    const endpoint = '/api/upload'
+
+                    const options = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    }
+
+                    const response = await axios.post(endpoint, formData, options)
+
+                    alert(`screen upload ${response.data.message}`)
+                }
+
+                mediaRecorder2.onstop = async (e) => {
+                    const file = new Blob(dataCam, {
+                    type: 'video/mp4'
+                    })
+
+                    document.getElementById("videoView2").src = URL.createObjectURL(
+                    file
+                    )
+
+                    const fileName = Date.now().toString() + "camVid.mp4"
+
+                    const formData = new FormData()
+                    formData.append("file", file, fileName)
+                    formData.append("fileName", fileName)
+                    setCam(fileName)
+
+                    const endpoint = '/api/upload'
+
+                    const options = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    }
+
+                    const response = await axios.post(endpoint, formData, options)
+
+                    alert(`cam upload ${response.data.message}`)
+                }
+            } catch (error) {
+                console.error(error)
+                alert(`cant do, something wrong`)
+            }
+        
+        } catch (error) {
+            console.error(`Error: ${error}`)
+        }
+    }
+    
+    async function stopCapture(evt) {
+        try {
+            document.getElementById("videoView").srcObject.getTracks().forEach((track) => track.stop());
+            document.getElementById("videoView2").srcObject.getTracks().forEach((track) => track.stop());
+        
+            document.getElementById("videoView").srcObject = null;
+            document.getElementById("videoView2").srcObject = null;
+            // router.push('/peserta/')
+        } catch (error) {
+            alert(`error with : ${error}`)
+        }
+    }
 
     function Modal() {
         return(
@@ -68,6 +185,7 @@ export default function ExamPage(params) {
                         className="btn btn-success"
                         onClick={() => {
                         setShow(!show)
+                        startCapture()
                         }}>Understand
                         </button>
                         {/* <button 
@@ -106,8 +224,12 @@ export default function ExamPage(params) {
     },[])
 
     async function onSubmit(event) {
-        event.preventDefault()
+        // event.preventDefault()
         const formData = new FormData()
+        if(!fileUpload){
+            alert('no file')
+            return
+        }
         const fileName = Date.now().toString() + fileUpload.name
         formData.append("file", fileUpload, fileName)
         formData.append("idSoal", idSoal)
@@ -125,13 +247,45 @@ export default function ExamPage(params) {
 
         alert(response.data.message)
         if(response.data.message == 'success') {
-            router.push('/peserta/')
+            const q = response.data.idJawaban
+            // console.log(q)
+            return q
+            // setIdJawaban(q)
+            // stopCapture()
         }
     }
 
     if(!isLoading) return <h3>Loading... Wait a bit</h3>
     if(!soal){ return <h3>Loading... Wait a bit, get data soal</h3>}
 
+    async function nana(v){
+        // alert('last')
+        // console.log({
+        //     // idJawaban: v,
+        //     cam,
+        //     screen
+        // })
+        first()
+        function first(params) {
+            alert("first")
+            stopCapture()
+            secound()
+        }
+
+        function secound(params) {
+            alert("2")
+            last()
+        }
+
+        function last(params) {
+            alert("last")
+            console.log({
+                // idJawaban: v,
+                cam,
+                screen
+            })
+        }
+    }
     return(
         <>
         <div className="container mt-5">
@@ -139,11 +293,12 @@ export default function ExamPage(params) {
         <div>
             <h3>{soal.fileName}</h3>
             <div className="h5 mb-3 text-premier">
-            {soal.namaDosen}
+            Nama Dosen : {soal.namaDosen}
             </div>
             <div className="h5 pb-2 mb-4 text-premier border-bottom border-premier">
-            NIDN {soal.nidn}
+            NIDN : {soal.nidn}
             </div>
+            <button type="button" onClick={() => nana()}>Log idJawaban</button>
         </div>
         <div className="row">
             <div className="col">
@@ -154,7 +309,8 @@ export default function ExamPage(params) {
                 style={{
                     'cursor': 'pointer'
                 }}>
-                    <form onSubmit={onSubmit}>
+                    {/* <form onSubmit={onSubmit}> */}
+                    <form>
                     <div className="h4 pb-2 mb-4 text-premier border-bottom border-premier">
                     {soal.topik}
                     </div>
@@ -211,13 +367,42 @@ export default function ExamPage(params) {
                             // 'justifyContent': 'center',
                             'cursor': 'pointer'
                         }}
-                        >Drag your files here or click in this area.</p>
+                        >{fileUpload ? fileUpload.name : "Drag your files here or click in this area."}</p>
                     </div>
-                    <button className="btn btn-success mt-5" width="100%">Upload Result</button>
+                    <button className="btn btn-success mt-5" type="button" width="100%" onClick={
+                        async () => {
+                            // const v = await onSubmit()
+                            // stopCapture().then(() => nana(v))
+                            // stopCapture()
+                            // setIdJawaban(v)
+                            nana()
+                        }
+                    }>Upload Result</button>
                     </form>
                 </div>
             </div>
         </div>
+        
+        <video 
+        id='videoView' 
+        className="h-52 w-full" 
+        autoPlay
+        style={{
+            'width': '500px',
+            'display': 'none'
+        }}/>
+
+        <video 
+        // add src here to check if file valid!
+        // src='/uploads/1671529307895vid.mp4'
+        id='videoView2' 
+        autoPlay
+        loop
+        controls
+        style={{
+            'width': '500px',
+            'display': 'none'
+        }}/>
         </div>
         </>
     )
